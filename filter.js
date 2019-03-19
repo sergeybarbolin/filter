@@ -14,62 +14,107 @@
 	}
 
 
+
+
 	var countRow = 0;
+
+	var result = addRowForm();
+	addRowForm();
+
+	var selectField = result.field;
+	var selectOperations = result.operations;
+	var input = result.input;
+
+	// document.body.appendChild(form);
+
 
 	var form = document.createElement('form');
 	form.classList.add('filter');
 
-	var formRow = document.createElement('div');
-	formRow.setAttribute('data-count', countRow);
-	formRow.classList.add('filter__row');
-
-	var formFragment = document.createDocumentFragment();
+	function addRowForm() {
 
 
-	var selectField = document.createElement('select');
-	selectField.name = 'field';
-	formFragment.appendChild(selectField);
+		var formRow = document.createElement('div');
+		
+		formRow.classList.add('filter__row');
+		formRow.setAttribute('data-count', countRow);
+
+		var formFragment = document.createDocumentFragment();
 
 
-	var selectOperations = document.createElement('select');
-	selectOperations.name = 'operations';
-	formFragment.appendChild(selectOperations);
+		var selectField = document.createElement('select');
+		selectField.name = 'field';
+		formFragment.appendChild(selectField);
 
 
-	var input = document.createElement('input');
-	input.name = 'input';
-	formFragment.appendChild(input);
+		var selectOperations = document.createElement('select');
+		selectOperations.name = 'operations';
+		formFragment.appendChild(selectOperations);
 
 
-	console.log(input);
-
-	formRow.appendChild(formFragment);
-	form.appendChild(formRow);
-	document.body.appendChild(form);
+		var input = document.createElement('input');
+		input.name = 'input';
+		formFragment.appendChild(input);
 
 
-	for (key in filters) {
+		formRow.appendChild(formFragment);
+		form.appendChild(formRow);
 
-		var option = new Option(filters[key].field, filters[key].field);
-		selectField.appendChild(option);
+		countRow++;
+
+		var obj = {
+			field: selectField,
+			operations: selectOperations,
+			input: input
+		}
+
+		for (key in filters) {
+
+			var option = new Option(filters[key].field, filters[key].field);
+			selectField.appendChild(option);
+
+		}
+
+		renderDependentFields();
+
+		return obj;
 
 	}
 
 
+
+
+
+
+
 	renderDependentFields();
 
-	selectField.addEventListener('change', renderDependentFields);
+
+	selectFields = document.querySelectorAll(`select[name="field"]`);
+
+	for (var i = 0; i < selectFields.length; i++) {
+		selectFields[i].addEventListener('change', renderDependentFields);
+	}
+	
 
 
 	function renderDependentFields() {
 
+		console.log(this);
+
 		if (this !== window) {
 			selectField = this;
-			console.log(this.parentElement.childNodes);
 
-			// input = document.queryselector('input[name="input"]');
+			countRow = this.parentElement.getAttribute('data-count');
+
+			input = document.querySelector(`.filter__row[data-count="${countRow}"] input[name="input"]`);
+			selectOperations = document.querySelector(`.filter__row[data-count="${countRow}"] select[name="operations"]`);
+
+			console.log(this);
+
 		}
 
+		console.log(selectField);
 		var field = selectField.options[selectField.selectedIndex].value;
 
 		for (key in filters) {
