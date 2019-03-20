@@ -15,19 +15,25 @@
 
 
 
-
-
-
-
-
 	var form = document.createElement('form');
 	form.classList.add('filter');
-	document.body.appendChild(form)
+
+
+	var btnApply = document.createElement('button');
+	btnApply.type = 'button';
+	btnApply.innerHTML = "Apply";
+	form.appendChild(btnApply);
+
+	var countRow = 0;
+
+
+	document.body.appendChild(form);
 	
 
 
 	function addRowForm(form) {
 
+		if (countRow < 10) {
 
 		var formRow = document.createElement('div');
 		
@@ -39,6 +45,7 @@
 
 		var selectField = document.createElement('select');
 		selectField.name = 'field';
+		selectField.addEventListener('change', renderDependentFields);
 		formFragment.appendChild(selectField);
 
 
@@ -51,9 +58,19 @@
 		input.name = 'input';
 		formFragment.appendChild(input);
 
+		if (countRow > 0) {
+			var btnDelete = document.createElement('button');
+			btnDelete.type = 'button';
+			btnDelete.innerHTML = 'Delete';
+			btnDelete.addEventListener('click', function() { deleteRowForm(btnDelete) }, false);
+			formFragment.appendChild(btnDelete);
+		}
+
+
 
 		formRow.appendChild(formFragment);
-		form.appendChild(formRow);
+
+		form.insertBefore(formRow, form.lastChild);
 
 		for (key in filters) {
 
@@ -67,53 +84,49 @@
 		var obj = {
 			field: selectField,
 			operations: selectOperations,
-			input: input
+			input: input,
+			count: countRow
 		}
 
 		renderDependentFields(obj);
 
+		if (countRow === 10) {
+			btnApply.remove();
+		}
 
 		return obj;
 
-	}
 
 
+		} else {
+			return false;
+		}
 
-	
-
-	var countRow = 0;
+	};
 
 	addRowForm(form);
-	// addRowForm(form);
-	// addRowForm(form);
-	// addRowForm(form);
-	// addRowForm(form);
-
 
 	
+	btnApply.addEventListener('click', function() { addRowForm(form) }, false);
 
-
-	selectFields = document.querySelectorAll(`select[name="field"]`);
-
-	for (var i = 0; i < selectFields.length; i++) {
-		selectFields[i].addEventListener('change', renderDependentFields);
+	function deleteRowForm(el) {
+		el.parentElement.remove();
 	}
-	
 
 
 	function renderDependentFields(obj) {
 
 
 
-		// console.log(this);
+		console.log(this);
 
 		if (this !== window) {
 			selectField = this;
 
-			countRow = this.parentElement.getAttribute('data-count');
+			currentRow = this.parentElement.getAttribute('data-count');
 
-			input = document.querySelector(`.filter__row[data-count="${countRow}"] input[name="input"]`);
-			selectOperations = document.querySelector(`.filter__row[data-count="${countRow}"] select[name="operations"]`);
+			input = document.querySelector(`.filter__row[data-count="${currentRow}"] input[name="input"]`);
+			selectOperations = document.querySelector(`.filter__row[data-count="${currentRow}"] select[name="operations"]`);
 
 		} else {
 			var result = obj;
