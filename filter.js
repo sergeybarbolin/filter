@@ -16,22 +16,17 @@
 
 
 
-	var countRow = 0;
 
-	var result = addRowForm();
-	addRowForm();
 
-	var selectField = result.field;
-	var selectOperations = result.operations;
-	var input = result.input;
-
-	// document.body.appendChild(form);
 
 
 	var form = document.createElement('form');
 	form.classList.add('filter');
+	document.body.appendChild(form)
+	
 
-	function addRowForm() {
+
+	function addRowForm(form) {
 
 
 		var formRow = document.createElement('div');
@@ -60,6 +55,13 @@
 		formRow.appendChild(formFragment);
 		form.appendChild(formRow);
 
+		for (key in filters) {
+
+			var option = new Option(filters[key].field, filters[key].field);
+			selectField.appendChild(option);
+
+		}
+
 		countRow++;
 
 		var obj = {
@@ -68,14 +70,8 @@
 			input: input
 		}
 
-		for (key in filters) {
+		renderDependentFields(obj);
 
-			var option = new Option(filters[key].field, filters[key].field);
-			selectField.appendChild(option);
-
-		}
-
-		renderDependentFields();
 
 		return obj;
 
@@ -83,11 +79,18 @@
 
 
 
+	
+
+	var countRow = 0;
+
+	addRowForm(form);
+	// addRowForm(form);
+	// addRowForm(form);
+	// addRowForm(form);
+	// addRowForm(form);
 
 
-
-
-	renderDependentFields();
+	
 
 
 	selectFields = document.querySelectorAll(`select[name="field"]`);
@@ -98,9 +101,11 @@
 	
 
 
-	function renderDependentFields() {
+	function renderDependentFields(obj) {
 
-		console.log(this);
+
+
+		// console.log(this);
 
 		if (this !== window) {
 			selectField = this;
@@ -110,11 +115,13 @@
 			input = document.querySelector(`.filter__row[data-count="${countRow}"] input[name="input"]`);
 			selectOperations = document.querySelector(`.filter__row[data-count="${countRow}"] select[name="operations"]`);
 
-			console.log(this);
-
+		} else {
+			var result = obj;
+			var selectField = result.field;
+			var selectOperations = result.operations;
+			var input = result.input;
 		}
 
-		console.log(selectField);
 		var field = selectField.options[selectField.selectedIndex].value;
 
 		for (key in filters) {
