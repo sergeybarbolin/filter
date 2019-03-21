@@ -1,59 +1,43 @@
+var objFilters = {
+	text: {
+		field: 'Text field',
+		operations: ['Equal', 'Greater than', 'Less than'],
+		typeValue: 'text'
+
+	},
+	number: {
+		field: 'Number field',
+		operations: ['Containing', 'Exactly matching', 'Begins with', 'Ends with'],
+		typeValue: 'number'
+
+	},
+	test: {
+		field: 'Test field',
+		operations: ['Test-operation-0', 'Test-operation-1'],
+		typeValue: 'text'
+
+	},
+};
+
 
 
 var filter = {
 	parent: 'body',
 	filterClass: 'filter',
 	maxCountRows: 10,
-	inputData: [
-		{
-			key: 'text',
-			nameField: 'Text field',
-			operations: ['Equal', 'Greater than', 'Less than'],
-			typeValue: 'text'
+	inputData: {}, 
 
-		},
-		{
-			key: 'number',
-			nameField: 'Number field',
-			operations: ['Containing', 'Exactly matching', 'Begins with', 'Ends with'],
-			typeValue: 'number'
+	createForm: function () {
+		var context = this;
+		var filters = context.inputData;
 
-		},
-		{
-			key: 'test',
-			nameField: 'Test field',
-			operations: ['Test-operation-0', 'Test-operation-1'],
-			typeValue: 'text'
-
-		},
-	],
-	init: function () {
-
-		function Filter (field, operations, typeValue, value) {
-			this.field = field;
-			this.operations = operations;
-			this.typeValue = typeValue;
-		}
-
-		var filters = {};
-
-		var args = this;
-
-		inputData = args.inputData;
-
-		inputData.forEach(function(item, i) {
-		  filters[item.key] = new Filter (item.nameField, item.operations, item.typeValue);
-		});
-
-		filterWrapper = document.querySelector(args.parent);
+		filterWrapper = document.querySelector(context.parent);
 
 		var form = document.createElement('form');
-		form.classList.add(args.filterClass);
-
+		form.classList.add(context.filterClass);
 
 		var filterNav = document.createElement('div');
-		filterNav.classList.add(args.filterClass + '-nav');
-
+		filterNav.classList.add(context.filterClass + '-nav');
 
 		var btnAdd = document.createElement('button');
 		btnAdd.type = 'button';
@@ -71,20 +55,18 @@ var filter = {
 		btnClear.addEventListener('click', function() { clearFilter() }, false);
 
 		filterNav.appendChild(btnClear);
-
-		var countRow = 0;
-
 		filterWrapper.appendChild(form);
 		filterWrapper.appendChild(filterNav);
 
-		
+		var countRow = 0;
+
 		function addRowForm(form) {
 
-			if (countRow < args.maxCountRows) {
+			if (countRow < context.maxCountRows) {
 
 				var formRow = document.createElement('div');
 				
-				formRow.classList.add(args.filterClass + '__row');
+				formRow.classList.add(context.filterClass + '__row');
 				formRow.setAttribute('data-count', countRow);
 
 				var selectField = document.createElement('select');
@@ -139,7 +121,7 @@ var filter = {
 
 				renderDependentFields(obj);
 
-				if (countRow === args.maxCountRows) {
+				if (countRow === context.maxCountRows) {
 					btnAdd.disabled = true;
 				}
 
@@ -157,7 +139,7 @@ var filter = {
 		function deleteRowForm(el) {
 			el.parentElement.remove();
 			countRow--;
-			rows = form.querySelectorAll(`.${args.filterClass}__row`);
+			rows = form.querySelectorAll(`.${context.filterClass}__row`);
 			for (var i = 0; i < rows.length; i++) {
 				rows[i].setAttribute('data-count', i);
 			}
@@ -183,8 +165,8 @@ var filter = {
 
 				currentRow = this.parentElement.getAttribute('data-count');
 
-				input = document.querySelector(`.${args.filterClass}__row[data-count="${currentRow}"] input[name="input"]`);
-				selectOperations = document.querySelector(`.${args.filterClass}__row[data-count="${currentRow}"] select[name="operations"]`);
+				input = document.querySelector(`.${context.filterClass}__row[data-count="${currentRow}"] input[name="input"]`);
+				selectOperations = document.querySelector(`.${context.filterClass}__row[data-count="${currentRow}"] select[name="operations"]`);
 
 			} else {
 				var result = obj;
@@ -222,53 +204,63 @@ var filter = {
 
 
 		function resultData(filters) {
-			var data = {};
 
-			for (key in filters) {
-				data[key] = [];
-			};
-
-			var array = [];
-
-			for (var i = 0; i < form.childNodes.length; i++) {
-				var currentField = form.childNodes[i].querySelector('select[name="field"]').options;
-				var currentSelectedField = currentField[currentField.selectedIndex].value;
-
-				var currentOperations = form.childNodes[i].querySelector('select[name="operations"]').options;
-				var currentSelectedOperation = currentOperations[currentOperations.selectedIndex].value;
-
-				var currentInput = form.childNodes[i].querySelector('input[name="input"]').value;
-
-				var resultItem = {}
-				resultItem.operation = currentSelectedOperation;
-				resultItem.value = currentInput;
-
-
-
-				for (key in filters) {
-					if (filters[key].field === currentSelectedField) {
-						data[key].push(resultItem);
-					}
-				}
-
-			}
-
-
-
-			console.log(data);
-
-			return data;
 		}
 
 
 
-		btnApply.addEventListener('click', function() { resultData(filters) }, false);
+		btnApply.addEventListener('click', function() { context.outputData; }, false);
 
 
 		return true;
-	};
+	},
+
+
+	set addFilters(objFilters) {
+		this.inputData = objFilters;
+	},
+
+	get outputData() {
+
+		var currentStateForm = document.querySelector('.' + this.filterClass);
+		
+		var data = {};
+
+		for (key in this.inputData) {
+			data[key] = [];
+		};
+
+		var array = [];
+
+		for (var i = 0; i < currentStateForm.childNodes.length; i++) {
+			var currentField = currentStateForm.childNodes[i].querySelector('select[name="field"]').options;
+			var currentSelectedField = currentField[currentField.selectedIndex].value;
+
+			var currentOperations = currentStateForm.childNodes[i].querySelector('select[name="operations"]').options;
+			var currentSelectedOperation = currentOperations[currentOperations.selectedIndex].value;
+
+			var currentInput = currentStateForm.childNodes[i].querySelector('input[name="input"]').value;
+
+			var resultItem = {}
+			resultItem.operation = currentSelectedOperation;
+			resultItem.value = currentInput;
+
+			for (key in this.inputData) {
+				if (this.inputData[key].field === currentSelectedField) {
+					data[key].push(resultItem);
+				}
+			}
+
+		}
+
+		return data;		
+	}	
 
 };
 
 
-filter.init();
+filter.addFilters = objFilters;
+filter.createForm();
+
+var test = filter.outputData;
+console.log(test);
