@@ -1,31 +1,21 @@
-var objFilters = {
-	text: {
-		field: 'Text field',
-		operations: ['Equal', 'Greater than', 'Less than'],
-		typeValue: 'text'
-
-	},
-	number: {
-		field: 'Number field',
-		operations: ['Containing', 'Exactly matching', 'Begins with', 'Ends with'],
-		typeValue: 'number'
-
-	},
-	test: {
-		field: 'Test field',
-		operations: ['Test-operation-0', 'Test-operation-1'],
-		typeValue: 'text'
-
-	},
-};
-
-
-
 var filter = {
 	parent: 'body',
 	filterClass: 'filter',
 	maxCountRows: 10,
-	inputData: {}, 
+	inputData: {
+			text: {
+				field: 'Text field',
+				operations: ['Equal', 'Greater than', 'Less than'],
+				typeValue: 'text'
+
+			},
+			number: {
+				field: 'Number field',
+				operations: ['Containing', 'Exactly matching', 'Begins with', 'Ends with'],
+				typeValue: 'number'
+
+			},
+	}, 
 
 	createForm: function () {
 		var context = this;
@@ -59,6 +49,9 @@ var filter = {
 		filterWrapper.appendChild(filterNav);
 
 		var countRow = 0;
+		addRowForm(form);
+		btnAdd.addEventListener('click', function() { addRowForm(form) }, false);
+		btnApply.addEventListener('click', function() { context.outputData; }, false);
 
 		function addRowForm(form) {
 
@@ -71,20 +64,17 @@ var filter = {
 
 				var selectField = document.createElement('select');
 				selectField.name = 'field';
-				selectField.addEventListener('change', renderDependentFields);
+				selectField.addEventListener('change', function() { renderDependentFields(selectField,selectOperations,input) }, false);
 				formRow.appendChild(selectField);
-
 
 				var selectOperations = document.createElement('select');
 				selectOperations.name = 'operations';
 				formRow.appendChild(selectOperations);
 
-
 				var input = document.createElement('input');
 				input.name = 'input';
 				formRow.appendChild(input);
 
-				
 				var btnDelete = document.createElement('button');
 				btnDelete.type = 'button';
 				btnDelete.value = 'btnDelete';
@@ -92,16 +82,13 @@ var filter = {
 				btnDelete.addEventListener('click', function() { deleteRowForm(btnDelete) }, false);
 				formRow.appendChild(btnDelete);
 
-
 				if (countRow === 0) {
 					btnDelete.disabled = true;
 				} else if (countRow === 1) {
 					form.firstChild.querySelector('button[value="btnDelete"]').disabled = false;
 				}
 
-
 				form.appendChild(formRow);
-
 
 				for (key in filters) {
 
@@ -112,20 +99,13 @@ var filter = {
 
 				countRow++;
 
-				var obj = {
-					field: selectField,
-					operations: selectOperations,
-					input: input,
-					count: countRow
-				}
-
-				renderDependentFields(obj);
+				renderDependentFields(selectField,selectOperations,input);
 
 				if (countRow === context.maxCountRows) {
 					btnAdd.disabled = true;
 				}
 
-				return obj;
+				return formRow;
 
 			} else {
 				return false;
@@ -133,8 +113,6 @@ var filter = {
 
 		};
 
-		addRowForm(form);
-		btnAdd.addEventListener('click', function() { addRowForm(form) }, false);
 
 		function deleteRowForm(el) {
 			el.parentElement.remove();
@@ -158,22 +136,7 @@ var filter = {
 			return countRow;
 		}
 
-		function renderDependentFields(obj) {
-
-			if (this !== window) {
-				selectField = this;
-
-				currentRow = this.parentElement.getAttribute('data-count');
-
-				input = document.querySelector(`.${context.filterClass}__row[data-count="${currentRow}"] input[name="input"]`);
-				selectOperations = document.querySelector(`.${context.filterClass}__row[data-count="${currentRow}"] select[name="operations"]`);
-
-			} else {
-				var result = obj;
-				var selectField = result.field;
-				var selectOperations = result.operations;
-				var input = result.input;
-			}
+		function renderDependentFields(selectField,selectOperations,input) {
 
 			var field = selectField.options[selectField.selectedIndex].value;
 
@@ -203,21 +166,23 @@ var filter = {
 		}
 
 
-		function resultData(filters) {
-
-		}
-
-
-
-		btnApply.addEventListener('click', function() { context.outputData; }, false);
-
-
-		return true;
+		return form;
 	},
 
 
-	set addFilters(objFilters) {
-		this.inputData = objFilters;
+	init: function(config) {
+		if (config) {
+			this.config = config;
+		};
+		filter.createForm();
+		return this;
+	},
+
+	set config(configObj) {
+		if (configObj.parent) { this.parent = configObj.parent };
+		if (configObj.filterClass) { this.filterClass = configObj.filterClass };
+		if (configObj.maxCountRows) { this.maxCountRows = configObj.maxCountRows };
+		if (configObj.filters) { this.inputData = configObj.filters };
 	},
 
 	get outputData() {
@@ -253,14 +218,89 @@ var filter = {
 
 		}
 
+		console.log(data);
 		return data;		
 	}	
 
 };
 
 
-filter.addFilters = objFilters;
-filter.createForm();
+var objFilters = {
+	text: {
+		field: 'Text field',
+		operations: ['Equal', 'Greater than', 'Less than'],
+		typeValue: 'text'
 
-var test = filter.outputData;
-console.log(test);
+	},
+	number: {
+		field: 'Number field',
+		operations: ['Containing', 'Exactly matching', 'Begins with', 'Ends with'],
+		typeValue: 'number'
+
+	},
+	test: {
+		field: 'Test field',
+		operations: ['Test-operation-0', 'Test-operation-1'],
+		typeValue: 'text'
+
+	},
+};
+
+
+var myFilter = filter.init({
+	parent: '.wrapper',
+	filterClass: 'myFilter',
+	maxCountRows: 5,
+	filters: objFilters,
+});
+
+
+function bind(method, context) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    return function() {
+        var a = args.concat(Array.prototype.slice.call(arguments, 0));
+        return method.apply(context, a);
+    }
+}
+
+function logObjectsProperties() {
+    var properties = '';
+    var object = this;
+    for (key in object) {
+    	properties += key + ':' + object[key] + '\n';
+    }
+    return properties;
+
+}
+
+var car = {
+	make: 'BMV',
+	model: 'X5',
+	year: 2005,
+	logAge: function(currentYear) {return currentYear - this.year; }
+}
+
+var user = {
+	firstName: 'Сергей',
+	lastName: 'Барболин',
+	year: 1996,
+	sayHi: function(firstName, lastName) { return `Hello ${firstName} ${lastName}!`; }
+}
+
+
+var logCarProperties = bind(logObjectsProperties, car);
+var	logUserProperies = bind(logObjectsProperties, user);
+console.log('Пример 1: \n' + logCarProperties() + '\n' + logUserProperies());
+
+
+var userAge = bind(car.logAge, user, 2019);
+console.log('Пример 2: \n' + car.logAge(2019) + '\n' + userAge());
+
+
+var carSayHi = bind(user.sayHi, car, car.make, car.model);
+
+console.log('Пример 3:\n' + user.sayHi(user.firstName, user.lastName) + '\n' + carSayHi());
+
+
+
+
