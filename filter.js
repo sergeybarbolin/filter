@@ -31,7 +31,7 @@ var filter = {
 
 		var btnAdd = document.createElement('button');
 		btnAdd.type = 'button';
-		btnAdd.innerHTML = "Add";
+		btnAdd.innerHTML = "Add condition";
 		filterNav.appendChild(btnAdd);
 
 		var btnApply = document.createElement('button');
@@ -41,7 +41,7 @@ var filter = {
 
 		var btnClear = document.createElement('button');
 		btnClear.type = 'button';
-		btnClear.innerHTML = "Clear";
+		btnClear.innerHTML = "Clear filter";
 		btnClear.addEventListener('click', function() { clearFilter() }, false);
 
 		filterNav.appendChild(btnClear);
@@ -78,7 +78,7 @@ var filter = {
 				var btnDelete = document.createElement('button');
 				btnDelete.type = 'button';
 				btnDelete.value = 'btnDelete';
-				btnDelete.innerHTML = 'Delete';
+				btnDelete.innerHTML = 'X';
 				btnDelete.addEventListener('click', function() { deleteRowForm(btnDelete) }, false);
 				formRow.appendChild(btnDelete);
 
