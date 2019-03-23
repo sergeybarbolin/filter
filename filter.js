@@ -250,8 +250,8 @@ var objFilters = {
 var myFilter = filter.init({
 	parent: '.wrapper',
 	filterClass: 'myFilter',
-	maxCountRows: 5,
-	filters: objFilters,
+	maxCountRows: 10,
+	// filters: objFilters,
 });
 
 
